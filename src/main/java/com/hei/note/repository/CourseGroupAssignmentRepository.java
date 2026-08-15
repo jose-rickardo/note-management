@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface CourseGroupAssignmentRepository
     extends JpaRepository<CourseGroupAssignment, String> {
   List<CourseGroupAssignment> findByGroupIdAndAcademicYear(String groupId, Integer academicYear);
+
+  List<CourseGroupAssignment> findByCourseIdAndAcademicYear(String courseId, Integer academicYear);
 }

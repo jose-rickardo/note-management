@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface CourseTeacherAssignmentRepository
     extends JpaRepository<CourseTeacherAssignment, String> {
   List<CourseTeacherAssignment> findByTeacherId(String teacherId);
+
+  List<CourseTeacherAssignment> findByCourseId(String courseId);
 }
