@@ -1,0 +1,46 @@
+package com.hei.note.model;
+
+import jakarta.persistence.*;
+import java.time.Instant;
+import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+/** A curriculum course actually taught, for one group, during one academic year. */
+@Entity
+@Table(name = "course_offerings")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class CourseOffering {
+
+  @Id
+  @GeneratedValue
+  @Column(updatable = false, nullable = false)
+  private UUID id;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "curriculum_id", nullable = false)
+  private Curriculum curriculum;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "group_id", nullable = false)
+  private Group group;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "academic_year_id", nullable = false)
+  private AcademicYear academicYear;
+
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private Instant createdAt;
+
+  @PrePersist
+  void onCreate() {
+    this.createdAt = Instant.now();
+  }
+}
