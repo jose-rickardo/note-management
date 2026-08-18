@@ -1,78 +1,117 @@
 package com.hei.note.service;
 
-import com.hei.note.endpoint.rest.model.AssignGroupToCourseRequest;
-import com.hei.note.endpoint.rest.model.AssignTeacherToCourseRequest;
-import com.hei.note.endpoint.rest.model.GroupDto;
-import com.hei.note.endpoint.rest.model.TeacherDto;
-import com.hei.note.repository.CourseGroupAssignmentRepository;
-import com.hei.note.repository.CourseTeacherAssignmentRepository;
-import com.hei.note.repository.model.Course;
-import com.hei.note.repository.model.CourseGroupAssignment;
-import com.hei.note.repository.model.CourseTeacherAssignment;
-import com.hei.note.repository.model.Group;
-import com.hei.note.repository.model.Teacher;
-import java.util.List;
+import com.hei.note.exception.BusinessRuleException;
+import com.hei.note.exception.NotFoundException;
+import com.hei.note.model.CourseEnrollment;
+import com.hei.note.model.CourseOffering;
+import com.hei.note.model.CourseTeacher;
+import com.hei.note.model.EnrollmentStatus;
+import com.hei.note.model.Group;
+import com.hei.note.repository.AcademicYearRepository;
+import com.hei.note.repository.CourseEnrollmentRepository;
+import com.hei.note.repository.CourseOfferingRepository;
+import com.hei.note.repository.CourseTeacherRepository;
+import com.hei.note.repository.CurriculumRepository;
+import com.hei.note.repository.GroupRepository;
+import com.hei.note.repository.StudentGroupHistoryRepository;
+import com.hei.note.repository.TeacherRepository;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
 public class CourseAssignmentService {
 
-  private final CourseService courseService;
-  private final GroupService groupService;
-  private final TeacherService teacherService;
-  private final CourseGroupAssignmentRepository courseGroupAssignmentRepository;
-  private final CourseTeacherAssignmentRepository courseTeacherAssignmentRepository;
+  private final CurriculumRepository curriculumRepository;
+  private final GroupRepository groupRepository;
+  private final AcademicYearRepository academicYearRepository;
+  private final CourseOfferingRepository courseOfferingRepository;
+  private final TeacherRepository teacherRepository;
+  private final CourseTeacherRepository courseTeacherRepository;
+  private final StudentGroupHistoryRepository studentGroupHistoryRepository;
+  private final CourseEnrollmentRepository courseEnrollmentRepository;
 
-  public void assignGroupToCourse(String courseId, AssignGroupToCourseRequest request) {
-    Course course = courseService.getEntityById(courseId);
-    Group group = groupService.getEntityById(request.getGroupId());
+  @Transactional
+  public CourseOffering createOffering(UUID curriculumId, UUID groupId, UUID academicYearId) {
+    var curriculum =
+        curriculumRepository
+            .findById(curriculumId)
+            .orElseThrow(
+                () -> new NotFoundException("Curriculum entry not found: " + curriculumId));
+    var group =
+        groupRepository
+            .findById(groupId)
+            .orElseThrow(() -> new NotFoundException("Group not found: " + groupId));
+    var academicYear =
+        academicYearRepository
+            .findById(academicYearId)
+            .orElseThrow(() -> new NotFoundException("Academic year not found: " + academicYearId));
 
-    CourseGroupAssignment assignment =
-        CourseGroupAssignment.builder()
-            .id(UUID.randomUUID().toString())
-            .course(course)
-            .group(group)
-            .academicYear(request.getAcademicYear())
-            .build();
-    courseGroupAssignmentRepository.save(assignment);
+    assertCourseAppliesToGroup(
+        curriculum.getProgram() == null ? null : curriculum.getProgram().getId(), group);
+
+    var offering =
+        courseOfferingRepository.save(
+            CourseOffering.builder()
+                .curriculum(curriculum)
+                .group(group)
+                .academicYear(academicYear)
+                .build());
+
+    autoEnrollGroupStudents(offering, group);
+
+    return offering;
   }
 
-  public void assignTeacherToCourse(String courseId, AssignTeacherToCourseRequest request) {
-    Course course = courseService.getEntityById(courseId);
-    Teacher teacher = teacherService.getEntityById(request.getTeacherId());
-
-    CourseTeacherAssignment assignment =
-        CourseTeacherAssignment.builder()
-            .id(UUID.randomUUID().toString())
-            .course(course)
-            .teacher(teacher)
-            .academicYear(request.getAcademicYear())
-            .build();
-    courseTeacherAssignmentRepository.save(assignment);
+  private void autoEnrollGroupStudents(CourseOffering offering, Group group) {
+    studentGroupHistoryRepository.findByGroupId(group.getId()).stream()
+        .filter(membership -> membership.getLeftAt() == null)
+        .map(membership -> membership.getStudent())
+        .forEach(
+            student -> {
+              if (courseEnrollmentRepository
+                  .findByStudentIdAndCourseOfferingId(student.getId(), offering.getId())
+                  .isEmpty()) {
+                courseEnrollmentRepository.save(
+                    CourseEnrollment.builder()
+                        .student(student)
+                        .courseOffering(offering)
+                        .status(EnrollmentStatus.ACTIVE)
+                        .build());
+              }
+            });
   }
 
-  public List<GroupDto> getGroupsForCourse(String courseId, Integer academicYear) {
-    return courseGroupAssignmentRepository
-        .findByCourseIdAndAcademicYear(courseId, academicYear)
-        .stream()
-        .map(CourseGroupAssignment::getGroup)
-        .map(group -> GroupDto.builder().id(group.getId()).ref(group.getRef()).build())
-        .toList();
+  @Transactional
+  public CourseTeacher assignTeacher(UUID courseOfferingId, UUID teacherId) {
+    var offering =
+        courseOfferingRepository
+            .findById(courseOfferingId)
+            .orElseThrow(
+                () -> new NotFoundException("Course offering not found: " + courseOfferingId));
+    var teacher =
+        teacherRepository
+            .findById(teacherId)
+            .orElseThrow(() -> new NotFoundException("Teacher not found: " + teacherId));
+
+    if (courseTeacherRepository.existsByCourseOfferingIdAndTeacherId(courseOfferingId, teacherId)) {
+      throw new BusinessRuleException("This teacher is already assigned to this course offering");
+    }
+
+    return courseTeacherRepository.save(
+        CourseTeacher.builder().courseOffering(offering).teacher(teacher).build());
   }
 
-  public List<TeacherDto> getTeachersForCourse(String courseId) {
-    return courseTeacherAssignmentRepository.findByCourseId(courseId).stream()
-        .map(CourseTeacherAssignment::getTeacher)
-        .map(
-            teacher ->
-                TeacherDto.builder()
-                    .id(teacher.getId())
-                    .firstName(teacher.getFirstName())
-                    .lastName(teacher.getLastName())
-                    .build())
-        .toList();
+  private void assertCourseAppliesToGroup(UUID curriculumProgramId, Group group) {
+    if (curriculumProgramId == null) {
+      return;
+    }
+    var groupProgramId = group.getProgram() == null ? null : group.getProgram().getId();
+    if (!curriculumProgramId.equals(groupProgramId)) {
+      throw new BusinessRuleException(
+          "This course belongs to a different program (TN/EL) than the target group");
+    }
   }
 }
