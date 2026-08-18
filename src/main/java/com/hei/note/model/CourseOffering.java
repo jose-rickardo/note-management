@@ -1,8 +1,5 @@
 package com.hei.note.model;
 
-import com.hei.note.model.AcademicYear;
-import com.hei.note.model.Curriculum;
-import com.hei.note.model.Group;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
@@ -21,7 +18,9 @@ import lombok.Setter;
 @Builder
 public class CourseOffering {
 
-  @Id @GeneratedValue @Column(updatable = false, nullable = false)
+  @Id
+  @GeneratedValue
+  @Column(updatable = false, nullable = false)
   private UUID id;
 
   @ManyToOne(fetch = FetchType.LAZY)

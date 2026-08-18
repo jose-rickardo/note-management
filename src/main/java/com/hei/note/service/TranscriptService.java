@@ -1,17 +1,17 @@
 package com.hei.note.service;
 
+import com.hei.note.exception.NotFoundException;
 import com.hei.note.model.AcademicYear;
-import com.hei.note.repository.AcademicYearRepository;
 import com.hei.note.model.CourseEnrollment;
-import com.hei.note.repository.CourseEnrollmentRepository;
-import com.hei.note.repository.CourseResultRepository;
 import com.hei.note.model.Student;
-import com.hei.note.repository.StudentRepository;
 import com.hei.note.model.Transcript;
-import com.hei.note.repository.TranscriptRepository;
 import com.hei.note.model.TranscriptStatus;
 import com.hei.note.model.TranscriptType;
-import com.hei.note.exception.NotFoundException;
+import com.hei.note.repository.AcademicYearRepository;
+import com.hei.note.repository.CourseEnrollmentRepository;
+import com.hei.note.repository.CourseResultRepository;
+import com.hei.note.repository.StudentRepository;
+import com.hei.note.repository.TranscriptRepository;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -72,10 +72,16 @@ public class TranscriptService {
   }
 
   @Transactional
-  public Transcript createPendingTranscript(UUID studentId, UUID academicYearId, TranscriptType type) {
-    var student = studentRepository.findById(studentId).orElseThrow(() -> new NotFoundException("Student not found"));
+  public Transcript createPendingTranscript(
+      UUID studentId, UUID academicYearId, TranscriptType type) {
+    var student =
+        studentRepository
+            .findById(studentId)
+            .orElseThrow(() -> new NotFoundException("Student not found"));
     var academicYear =
-        academicYearRepository.findById(academicYearId).orElseThrow(() -> new NotFoundException("Academic year not found"));
+        academicYearRepository
+            .findById(academicYearId)
+            .orElseThrow(() -> new NotFoundException("Academic year not found"));
     return transcriptRepository.save(
         Transcript.builder()
             .student(student)

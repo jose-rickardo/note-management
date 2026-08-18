@@ -30,7 +30,9 @@ class GroupAssignmentServiceTest {
 
   @BeforeEach
   void setUp() {
-    service = new GroupAssignmentService(studentRepository, groupRepository, studentGroupHistoryRepository);
+    service =
+        new GroupAssignmentService(
+            studentRepository, groupRepository, studentGroupHistoryRepository);
   }
 
   @Test
@@ -39,7 +41,12 @@ class GroupAssignmentServiceTest {
     var oldGroup = Group.builder().id(UUID.randomUUID()).code("TC1-A").build();
     var newGroup = Group.builder().id(UUID.randomUUID()).code("TN2-A").build();
     var oldMembership =
-        StudentGroupHistory.builder().id(UUID.randomUUID()).student(student).group(oldGroup).joinedAt(Instant.now()).build();
+        StudentGroupHistory.builder()
+            .id(UUID.randomUUID())
+            .student(student)
+            .group(oldGroup)
+            .joinedAt(Instant.now())
+            .build();
 
     when(studentRepository.findById(student.getId())).thenReturn(Optional.of(student));
     when(groupRepository.findById(newGroup.getId())).thenReturn(Optional.of(newGroup));
@@ -62,7 +69,8 @@ class GroupAssignmentServiceTest {
 
     when(studentRepository.findById(student.getId())).thenReturn(Optional.of(student));
     when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
-    when(studentGroupHistoryRepository.findByStudentIdAndLeftAtIsNull(student.getId())).thenReturn(Optional.empty());
+    when(studentGroupHistoryRepository.findByStudentIdAndLeftAtIsNull(student.getId()))
+        .thenReturn(Optional.empty());
     when(studentGroupHistoryRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
     var membership = service.assignStudentToGroup(student.getId(), group.getId());

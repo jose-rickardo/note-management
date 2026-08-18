@@ -59,13 +59,20 @@ class GradeServiceTest {
     when(examRepository.findById(exam.getId())).thenReturn(Optional.of(exam));
     when(studentRepository.findById(student.getId())).thenReturn(Optional.of(student));
     when(teacherRepository.findByUserId(teacherUser.getId())).thenReturn(Optional.of(teacher));
-    when(courseTeacherRepository.existsByCourseOfferingIdAndTeacherId(offering.getId(), teacher.getId()))
+    when(courseTeacherRepository.existsByCourseOfferingIdAndTeacherId(
+            offering.getId(), teacher.getId()))
         .thenReturn(false);
 
     assertThatThrownBy(
             () ->
                 service.enterOrUpdateGrade(
-                    exam.getId(), student.getId(), new BigDecimal("12"), teacherUser.getId(), teacherUser, null, null))
+                    exam.getId(),
+                    student.getId(),
+                    new BigDecimal("12"),
+                    teacherUser.getId(),
+                    teacherUser,
+                    null,
+                    null))
         .isInstanceOf(ForbiddenOperationException.class);
   }
 
@@ -74,18 +81,30 @@ class GradeServiceTest {
     when(examRepository.findById(exam.getId())).thenReturn(Optional.of(exam));
     when(studentRepository.findById(student.getId())).thenReturn(Optional.of(student));
     when(teacherRepository.findByUserId(teacherUser.getId())).thenReturn(Optional.of(teacher));
-    when(courseTeacherRepository.existsByCourseOfferingIdAndTeacherId(offering.getId(), teacher.getId()))
+    when(courseTeacherRepository.existsByCourseOfferingIdAndTeacherId(
+            offering.getId(), teacher.getId()))
         .thenReturn(true);
 
     var existingGrade =
-        ExamGrade.builder().id(UUID.randomUUID()).exam(exam).student(student).score(new BigDecimal("8")).build();
+        ExamGrade.builder()
+            .id(UUID.randomUUID())
+            .exam(exam)
+            .student(student)
+            .score(new BigDecimal("8"))
+            .build();
     when(examGradeRepository.findByExamIdAndStudentId(exam.getId(), student.getId()))
         .thenReturn(Optional.of(existingGrade));
     when(examGradeRepository.save(Mockito.any())).thenAnswer(inv -> inv.getArgument(0));
 
     var updated =
         service.enterOrUpdateGrade(
-            exam.getId(), student.getId(), new BigDecimal("15"), teacherUser.getId(), teacherUser, null, "Reclamation");
+            exam.getId(),
+            student.getId(),
+            new BigDecimal("15"),
+            teacherUser.getId(),
+            teacherUser,
+            null,
+            "Reclamation");
 
     assertThat(updated.getScore()).isEqualByComparingTo("15");
 
@@ -101,16 +120,28 @@ class GradeServiceTest {
     when(examRepository.findById(exam.getId())).thenReturn(Optional.of(exam));
     when(studentRepository.findById(student.getId())).thenReturn(Optional.of(student));
     when(teacherRepository.findByUserId(teacherUser.getId())).thenReturn(Optional.of(teacher));
-    when(courseTeacherRepository.existsByCourseOfferingIdAndTeacherId(offering.getId(), teacher.getId()))
+    when(courseTeacherRepository.existsByCourseOfferingIdAndTeacherId(
+            offering.getId(), teacher.getId()))
         .thenReturn(true);
 
     var existingGrade =
-        ExamGrade.builder().id(UUID.randomUUID()).exam(exam).student(student).score(new BigDecimal("12.00")).build();
+        ExamGrade.builder()
+            .id(UUID.randomUUID())
+            .exam(exam)
+            .student(student)
+            .score(new BigDecimal("12.00"))
+            .build();
     when(examGradeRepository.findByExamIdAndStudentId(exam.getId(), student.getId()))
         .thenReturn(Optional.of(existingGrade));
 
     service.enterOrUpdateGrade(
-        exam.getId(), student.getId(), new BigDecimal("12.00"), teacherUser.getId(), teacherUser, null, null);
+        exam.getId(),
+        student.getId(),
+        new BigDecimal("12.00"),
+        teacherUser.getId(),
+        teacherUser,
+        null,
+        null);
 
     Mockito.verify(examGradeHistoryRepository, Mockito.never()).save(Mockito.any());
     Mockito.verify(examGradeRepository, Mockito.never()).save(Mockito.any());
@@ -123,14 +154,22 @@ class GradeServiceTest {
     when(examRepository.findById(exam.getId())).thenReturn(Optional.of(exam));
     when(studentRepository.findById(student.getId())).thenReturn(Optional.of(student));
     when(teacherRepository.findById(teacher.getId())).thenReturn(Optional.of(teacher));
-    when(courseTeacherRepository.existsByCourseOfferingIdAndTeacherId(offering.getId(), teacher.getId()))
+    when(courseTeacherRepository.existsByCourseOfferingIdAndTeacherId(
+            offering.getId(), teacher.getId()))
         .thenReturn(true);
-    when(examGradeRepository.findByExamIdAndStudentId(exam.getId(), student.getId())).thenReturn(Optional.empty());
+    when(examGradeRepository.findByExamIdAndStudentId(exam.getId(), student.getId()))
+        .thenReturn(Optional.empty());
     when(examGradeRepository.save(Mockito.any())).thenAnswer(inv -> inv.getArgument(0));
 
     var grade =
         service.enterOrUpdateGrade(
-            exam.getId(), student.getId(), new BigDecimal("16"), admin.getId(), admin, teacher.getId(), null);
+            exam.getId(),
+            student.getId(),
+            new BigDecimal("16"),
+            admin.getId(),
+            admin,
+            teacher.getId(),
+            null);
 
     assertThat(grade.getEnteredBy()).isEqualTo(teacher);
   }
@@ -145,7 +184,13 @@ class GradeServiceTest {
     assertThatThrownBy(
             () ->
                 service.enterOrUpdateGrade(
-                    exam.getId(), student.getId(), new BigDecimal("16"), admin.getId(), admin, null, null))
+                    exam.getId(),
+                    student.getId(),
+                    new BigDecimal("16"),
+                    admin.getId(),
+                    admin,
+                    null,
+                    null))
         .isInstanceOf(com.hei.note.exception.BusinessRuleException.class);
   }
 }

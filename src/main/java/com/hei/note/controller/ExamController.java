@@ -25,7 +25,9 @@ public class ExamController {
   @ResponseStatus(HttpStatus.CREATED)
   public Exam create(@PathVariable UUID offeringId, @Valid @RequestBody CreateExamRequest request) {
     CourseOffering offering =
-        courseOfferingRepository.findById(offeringId).orElseThrow(() -> new NotFoundException("Course offering not found"));
+        courseOfferingRepository
+            .findById(offeringId)
+            .orElseThrow(() -> new NotFoundException("Course offering not found"));
     return examRepository.save(
         Exam.builder()
             .courseOffering(offering)

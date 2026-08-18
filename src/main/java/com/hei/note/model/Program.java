@@ -17,7 +17,9 @@ import lombok.Setter;
 @Builder
 public class Program {
 
-  @Id @GeneratedValue @Column(updatable = false, nullable = false)
+  @Id
+  @GeneratedValue
+  @Column(updatable = false, nullable = false)
   private UUID id;
 
   @Column(nullable = false, unique = true)

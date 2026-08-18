@@ -1,19 +1,19 @@
 package com.hei.note.service;
 
-import com.hei.note.model.CourseEnrollment;
-import com.hei.note.repository.CourseEnrollmentRepository;
-import com.hei.note.model.AttemptType;
-import com.hei.note.model.CourseResult;
-import com.hei.note.repository.CourseResultRepository;
-import com.hei.note.model.CourseResultHistory;
-import com.hei.note.repository.CourseResultHistoryRepository;
-import com.hei.note.model.Exam;
-import com.hei.note.repository.ExamRepository;
-import com.hei.note.model.ExamGrade;
-import com.hei.note.repository.ExamGradeRepository;
-import com.hei.note.model.User;
 import com.hei.note.exception.BusinessRuleException;
 import com.hei.note.exception.NotFoundException;
+import com.hei.note.model.AttemptType;
+import com.hei.note.model.CourseEnrollment;
+import com.hei.note.model.CourseResult;
+import com.hei.note.model.CourseResultHistory;
+import com.hei.note.model.Exam;
+import com.hei.note.model.ExamGrade;
+import com.hei.note.model.User;
+import com.hei.note.repository.CourseEnrollmentRepository;
+import com.hei.note.repository.CourseResultHistoryRepository;
+import com.hei.note.repository.CourseResultRepository;
+import com.hei.note.repository.ExamGradeRepository;
+import com.hei.note.repository.ExamRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -48,12 +48,13 @@ public class CourseResultService {
 
     var weightedScore = computeWeightedAverage(enrollment.getStudent().getId(), exams);
 
-    return upsertResult(enrollment, weightedScore, AttemptType.NORMALE, actingUser, "Recomputed from exam grades");
+    return upsertResult(
+        enrollment, weightedScore, AttemptType.NORMALE, actingUser, "Recomputed from exam grades");
   }
 
- 
   @Transactional
-  public CourseResult recordRattrapage(UUID enrollmentId, BigDecimal newScore, User actingUser, String reason) {
+  public CourseResult recordRattrapage(
+      UUID enrollmentId, BigDecimal newScore, User actingUser, String reason) {
     var enrollment =
         courseEnrollmentRepository
             .findById(enrollmentId)
@@ -62,7 +63,11 @@ public class CourseResultService {
   }
 
   private CourseResult upsertResult(
-      CourseEnrollment enrollment, BigDecimal newScore, AttemptType attemptType, User actingUser, String reason) {
+      CourseEnrollment enrollment,
+      BigDecimal newScore,
+      AttemptType attemptType,
+      User actingUser,
+      String reason) {
     var existing = courseResultRepository.findByEnrollmentId(enrollment.getId());
     var validated = newScore.compareTo(PASSING_SCORE) >= 0;
 
@@ -108,12 +113,15 @@ public class CourseResultService {
               .orElseThrow(
                   () ->
                       new BusinessRuleException(
-                          "Missing grade for exam '" + exam.getTitle() + "': result cannot be computed yet"));
+                          "Missing grade for exam '"
+                              + exam.getTitle()
+                              + "': result cannot be computed yet"));
       weightedSum = weightedSum.add(grade.getScore().multiply(exam.getCoefficient()));
       totalWeight = totalWeight.add(exam.getCoefficient());
     }
     if (totalWeight.compareTo(BigDecimal.ZERO) == 0) {
-      throw new BusinessRuleException("Exams for this course offering have a total coefficient of zero");
+      throw new BusinessRuleException(
+          "Exams for this course offering have a total coefficient of zero");
     }
     return weightedSum.divide(totalWeight, 2, RoundingMode.HALF_UP);
   }

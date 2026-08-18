@@ -1,20 +1,20 @@
 package com.hei.note.service;
 
-import com.hei.note.repository.AcademicYearRepository;
+import com.hei.note.exception.BusinessRuleException;
+import com.hei.note.exception.NotFoundException;
 import com.hei.note.model.CourseEnrollment;
-import com.hei.note.repository.CourseEnrollmentRepository;
-import com.hei.note.model.EnrollmentStatus;
 import com.hei.note.model.CourseOffering;
-import com.hei.note.repository.CourseOfferingRepository;
 import com.hei.note.model.CourseTeacher;
+import com.hei.note.model.EnrollmentStatus;
+import com.hei.note.model.Group;
+import com.hei.note.repository.AcademicYearRepository;
+import com.hei.note.repository.CourseEnrollmentRepository;
+import com.hei.note.repository.CourseOfferingRepository;
 import com.hei.note.repository.CourseTeacherRepository;
 import com.hei.note.repository.CurriculumRepository;
-import com.hei.note.model.Group;
 import com.hei.note.repository.GroupRepository;
 import com.hei.note.repository.StudentGroupHistoryRepository;
 import com.hei.note.repository.TeacherRepository;
-import com.hei.note.exception.BusinessRuleException;
-import com.hei.note.exception.NotFoundException;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,8 @@ public class CourseAssignmentService {
     var curriculum =
         curriculumRepository
             .findById(curriculumId)
-            .orElseThrow(() -> new NotFoundException("Curriculum entry not found: " + curriculumId));
+            .orElseThrow(
+                () -> new NotFoundException("Curriculum entry not found: " + curriculumId));
     var group =
         groupRepository
             .findById(groupId)
@@ -48,11 +49,16 @@ public class CourseAssignmentService {
             .findById(academicYearId)
             .orElseThrow(() -> new NotFoundException("Academic year not found: " + academicYearId));
 
-    assertCourseAppliesToGroup(curriculum.getProgram() == null ? null : curriculum.getProgram().getId(), group);
+    assertCourseAppliesToGroup(
+        curriculum.getProgram() == null ? null : curriculum.getProgram().getId(), group);
 
     var offering =
         courseOfferingRepository.save(
-            CourseOffering.builder().curriculum(curriculum).group(group).academicYear(academicYear).build());
+            CourseOffering.builder()
+                .curriculum(curriculum)
+                .group(group)
+                .academicYear(academicYear)
+                .build());
 
     autoEnrollGroupStudents(offering, group);
 
@@ -83,7 +89,8 @@ public class CourseAssignmentService {
     var offering =
         courseOfferingRepository
             .findById(courseOfferingId)
-            .orElseThrow(() -> new NotFoundException("Course offering not found: " + courseOfferingId));
+            .orElseThrow(
+                () -> new NotFoundException("Course offering not found: " + courseOfferingId));
     var teacher =
         teacherRepository
             .findById(teacherId)
@@ -93,10 +100,10 @@ public class CourseAssignmentService {
       throw new BusinessRuleException("This teacher is already assigned to this course offering");
     }
 
-    return courseTeacherRepository.save(CourseTeacher.builder().courseOffering(offering).teacher(teacher).build());
+    return courseTeacherRepository.save(
+        CourseTeacher.builder().courseOffering(offering).teacher(teacher).build());
   }
 
-  
   private void assertCourseAppliesToGroup(UUID curriculumProgramId, Group group) {
     if (curriculumProgramId == null) {
       return;

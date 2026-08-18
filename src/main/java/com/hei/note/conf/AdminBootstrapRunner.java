@@ -30,8 +30,11 @@ public class AdminBootstrapRunner implements CommandLineRunner {
     if (userRepository.count() > 0) {
       return;
     }
-    if (bootstrapEmail == null || bootstrapEmail.isBlank() || bootstrapPassword == null || bootstrapPassword.isBlank()) {
-      return; 
+    if (bootstrapEmail == null
+        || bootstrapEmail.isBlank()
+        || bootstrapPassword == null
+        || bootstrapPassword.isBlank()) {
+      return;
     }
 
     userRepository.save(

@@ -1,6 +1,5 @@
 package com.hei.note.model;
 
-import com.hei.note.model.Transcript;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
@@ -19,7 +18,9 @@ import lombok.Setter;
 @Builder
 public class TranscriptEmail {
 
-  @Id @GeneratedValue @Column(updatable = false, nullable = false)
+  @Id
+  @GeneratedValue
+  @Column(updatable = false, nullable = false)
   private UUID id;
 
   @ManyToOne(fetch = FetchType.LAZY)

@@ -1,8 +1,5 @@
 package com.hei.note.model;
 
-import com.hei.note.model.AcademicYear;
-import com.hei.note.model.Program;
-import com.hei.note.model.Promotion;
 import jakarta.persistence.*;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -20,7 +17,9 @@ import lombok.Setter;
 @Builder
 public class Group {
 
-  @Id @GeneratedValue @Column(updatable = false, nullable = false)
+  @Id
+  @GeneratedValue
+  @Column(updatable = false, nullable = false)
   private UUID id;
 
   @Column(nullable = false)

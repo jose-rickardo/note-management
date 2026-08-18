@@ -18,21 +18,32 @@ public class AccountController {
 
   @PostMapping("/students")
   @ResponseStatus(HttpStatus.CREATED)
-  public com.hei.note.model.Student createStudent(@Valid @RequestBody CreateStudentAccountRequest request) {
+  public com.hei.note.model.Student createStudent(
+      @Valid @RequestBody CreateStudentAccountRequest request) {
     return userAccountService.createStudent(
-        request.email(), request.password(), request.firstName(), request.lastName(), request.promotionId());
+        request.email(),
+        request.password(),
+        request.firstName(),
+        request.lastName(),
+        request.promotionId());
   }
 
   @PostMapping("/teachers")
   @ResponseStatus(HttpStatus.CREATED)
-  public com.hei.note.model.Teacher createTeacher(@Valid @RequestBody CreateTeacherAccountRequest request) {
+  public com.hei.note.model.Teacher createTeacher(
+      @Valid @RequestBody CreateTeacherAccountRequest request) {
     return userAccountService.createTeacher(
-        request.email(), request.password(), request.firstName(), request.lastName(), request.teacherCode());
+        request.email(),
+        request.password(),
+        request.firstName(),
+        request.lastName(),
+        request.teacherCode());
   }
 
   @PostMapping("/admins")
   @ResponseStatus(HttpStatus.CREATED)
-  public com.hei.note.model.User createAdmin(@Valid @RequestBody CreateAdminAccountRequest request) {
+  public com.hei.note.model.User createAdmin(
+      @Valid @RequestBody CreateAdminAccountRequest request) {
     return userAccountService.createAdmin(request.email(), request.password());
   }
 }

@@ -1,6 +1,5 @@
 package com.hei.note.model;
 
-import com.hei.note.model.CourseOffering;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -20,7 +19,9 @@ import lombok.Setter;
 @Builder
 public class Exam {
 
-  @Id @GeneratedValue @Column(updatable = false, nullable = false)
+  @Id
+  @GeneratedValue
+  @Column(updatable = false, nullable = false)
   private UUID id;
 
   @ManyToOne(fetch = FetchType.LAZY)

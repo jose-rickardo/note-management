@@ -26,7 +26,12 @@ public class PromotionWebController {
     var promotions = promotionRepository.findAll();
     var programs = programRepository.findAll();
 
-    record Row(java.util.UUID promotionId, String promotionCode, java.util.UUID programId, String programCode, boolean hasGraduates) {}
+    record Row(
+        java.util.UUID promotionId,
+        String promotionCode,
+        java.util.UUID programId,
+        String programCode,
+        boolean hasGraduates) {}
 
     var rows =
         promotions.stream()
@@ -41,7 +46,8 @@ public class PromotionWebController {
                                     program.getId(),
                                     program.getCode(),
                                     !graduationRepository
-                                        .findByPromotionIdAndProgramIdOrderByRankAsc(promotion.getId(), program.getId())
+                                        .findByPromotionIdAndProgramIdOrderByRankAsc(
+                                            promotion.getId(), program.getId())
                                         .isEmpty())))
             .toList();
 

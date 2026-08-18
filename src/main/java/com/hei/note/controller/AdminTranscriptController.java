@@ -30,10 +30,13 @@ public class AdminTranscriptController {
   public TranscriptResponse generate(@Valid @RequestBody GenerateTranscriptRequest request) {
     var data = transcriptService.buildData(request.studentId(), request.academicYearId());
     var transcript =
-        transcriptService.createPendingTranscript(request.studentId(), request.academicYearId(), data.transcriptType());
+        transcriptService.createPendingTranscript(
+            request.studentId(), request.academicYearId(), data.transcriptType());
 
     Student student =
-        studentRepository.findById(request.studentId()).orElseThrow(() -> new NotFoundException("Student not found"));
+        studentRepository
+            .findById(request.studentId())
+            .orElseThrow(() -> new NotFoundException("Student not found"));
     var recipientEmail = student.getUser() != null ? student.getUser().getEmail() : null;
     if (recipientEmail != null) {
       transcriptEmailEventProducer.accept(
@@ -52,15 +55,26 @@ public class AdminTranscriptController {
     return transcriptRepository.findByStudentId(studentId);
   }
 
-  private TranscriptResponse toResponse(UUID transcriptId, com.hei.note.service.TranscriptData data) {
+  private TranscriptResponse toResponse(
+      UUID transcriptId, com.hei.note.service.TranscriptData data) {
     var lines =
         data.lines().stream()
             .map(
                 l ->
                     new TranscriptLineResponse(
-                        l.courseRef(), l.courseTitle(), l.credits(), l.score(), l.validated(), l.resultAvailable()))
+                        l.courseRef(),
+                        l.courseTitle(),
+                        l.credits(),
+                        l.score(),
+                        l.validated(),
+                        l.resultAvailable()))
             .toList();
     return new TranscriptResponse(
-        transcriptId, data.studentNumber(), data.academicYearLabel(), data.transcriptType().name(), "PENDING", lines);
+        transcriptId,
+        data.studentNumber(),
+        data.academicYearLabel(),
+        data.transcriptType().name(),
+        "PENDING",
+        lines);
   }
 }

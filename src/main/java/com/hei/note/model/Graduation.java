@@ -1,8 +1,5 @@
 package com.hei.note.model;
 
-import com.hei.note.model.Program;
-import com.hei.note.model.Promotion;
-import com.hei.note.model.Student;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -23,7 +20,9 @@ import lombok.Setter;
 @Builder
 public class Graduation {
 
-  @Id @GeneratedValue @Column(updatable = false, nullable = false)
+  @Id
+  @GeneratedValue
+  @Column(updatable = false, nullable = false)
   private UUID id;
 
   @OneToOne(fetch = FetchType.LAZY)

@@ -48,9 +48,7 @@ public class SecurityConfig {
     http.securityMatcher("/ui/**", "/admin/promotions/*/graduations/export")
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(
-            auth ->
-                auth.requestMatchers("/ui/login").permitAll()
-                    .anyRequest().hasRole("ADMIN"))
+            auth -> auth.requestMatchers("/ui/login").permitAll().anyRequest().hasRole("ADMIN"))
         .formLogin(
             form ->
                 form.loginPage("/ui/login")
@@ -69,11 +67,16 @@ public class SecurityConfig {
         .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers("/auth/**", "/health/**", "/ping").permitAll()
-                    .requestMatchers("/admin/**").hasRole("ADMIN")
-                    .requestMatchers("/teacher/**").hasAnyRole("TEACHER", "ADMIN")
-                    .requestMatchers("/students/**").hasAnyRole("STUDENT", "ADMIN")
-                    .anyRequest().authenticated())
+                auth.requestMatchers("/auth/**", "/health/**", "/ping")
+                    .permitAll()
+                    .requestMatchers("/admin/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers("/teacher/**")
+                    .hasAnyRole("TEACHER", "ADMIN")
+                    .requestMatchers("/students/**")
+                    .hasAnyRole("STUDENT", "ADMIN")
+                    .anyRequest()
+                    .authenticated())
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }

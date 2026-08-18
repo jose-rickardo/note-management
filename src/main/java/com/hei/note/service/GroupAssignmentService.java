@@ -1,10 +1,10 @@
 package com.hei.note.service;
 
-import com.hei.note.repository.GroupRepository;
-import com.hei.note.repository.StudentRepository;
-import com.hei.note.model.StudentGroupHistory;
-import com.hei.note.repository.StudentGroupHistoryRepository;
 import com.hei.note.exception.NotFoundException;
+import com.hei.note.model.StudentGroupHistory;
+import com.hei.note.repository.GroupRepository;
+import com.hei.note.repository.StudentGroupHistoryRepository;
+import com.hei.note.repository.StudentRepository;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.AllArgsConstructor;

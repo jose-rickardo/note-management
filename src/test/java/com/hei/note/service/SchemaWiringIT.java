@@ -4,40 +4,40 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hei.note.conf.FacadeIT;
 import com.hei.note.model.AcademicYear;
-import com.hei.note.repository.AcademicYearRepository;
-import com.hei.note.model.Course;
-import com.hei.note.repository.CourseRepository;
-import com.hei.note.model.CourseEnrollment;
-import com.hei.note.repository.CourseEnrollmentRepository;
-import com.hei.note.model.EnrollmentStatus;
-import com.hei.note.model.CourseOffering;
-import com.hei.note.repository.CourseOfferingRepository;
 import com.hei.note.model.AttemptType;
+import com.hei.note.model.Course;
+import com.hei.note.model.CourseEnrollment;
+import com.hei.note.model.CourseOffering;
 import com.hei.note.model.CourseResult;
-import com.hei.note.repository.CourseResultRepository;
 import com.hei.note.model.CourseTeacher;
-import com.hei.note.repository.CourseTeacherRepository;
 import com.hei.note.model.Curriculum;
-import com.hei.note.repository.CurriculumRepository;
+import com.hei.note.model.EnrollmentStatus;
 import com.hei.note.model.Exam;
-import com.hei.note.repository.ExamRepository;
-import com.hei.note.model.ExamType;
 import com.hei.note.model.ExamGrade;
-import com.hei.note.repository.ExamGradeRepository;
+import com.hei.note.model.ExamType;
 import com.hei.note.model.Group;
-import com.hei.note.repository.GroupRepository;
 import com.hei.note.model.Program;
-import com.hei.note.repository.ProgramRepository;
 import com.hei.note.model.Promotion;
-import com.hei.note.repository.PromotionRepository;
-import com.hei.note.model.Student;
-import com.hei.note.repository.StudentRepository;
-import com.hei.note.model.StudentGroupHistory;
-import com.hei.note.repository.StudentGroupHistoryRepository;
-import com.hei.note.model.Teacher;
-import com.hei.note.repository.TeacherRepository;
 import com.hei.note.model.Role;
+import com.hei.note.model.Student;
+import com.hei.note.model.StudentGroupHistory;
+import com.hei.note.model.Teacher;
 import com.hei.note.model.User;
+import com.hei.note.repository.AcademicYearRepository;
+import com.hei.note.repository.CourseEnrollmentRepository;
+import com.hei.note.repository.CourseOfferingRepository;
+import com.hei.note.repository.CourseRepository;
+import com.hei.note.repository.CourseResultRepository;
+import com.hei.note.repository.CourseTeacherRepository;
+import com.hei.note.repository.CurriculumRepository;
+import com.hei.note.repository.ExamGradeRepository;
+import com.hei.note.repository.ExamRepository;
+import com.hei.note.repository.GroupRepository;
+import com.hei.note.repository.ProgramRepository;
+import com.hei.note.repository.PromotionRepository;
+import com.hei.note.repository.StudentGroupHistoryRepository;
+import com.hei.note.repository.StudentRepository;
+import com.hei.note.repository.TeacherRepository;
 import com.hei.note.repository.UserRepository;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -87,7 +87,8 @@ class SchemaWiringIT extends FacadeIT {
     var academicYear =
         academicYearRepository.save(
             AcademicYear.builder().label("2026-2027").startYear(2026).endYear(2027).build());
-    var programEl = programRepository.save(Program.builder().code("EL").name("Electronique").build());
+    var programEl =
+        programRepository.save(Program.builder().code("EL").name("Electronique").build());
 
     var student =
         studentRepository.save(
@@ -108,7 +109,9 @@ class SchemaWiringIT extends FacadeIT {
                 .lastName("HEI")
                 .build());
 
-    var course = courseRepository.save(Course.builder().ref("EL201").title("Electronique 2").credits(5).build());
+    var course =
+        courseRepository.save(
+            Course.builder().ref("EL201").title("Electronique 2").credits(5).build());
 
     var group =
         groupRepository.save(
@@ -121,7 +124,11 @@ class SchemaWiringIT extends FacadeIT {
                 .build());
 
     studentGroupHistoryRepository.save(
-        StudentGroupHistory.builder().student(student).group(group).joinedAt(Instant.now()).build());
+        StudentGroupHistory.builder()
+            .student(student)
+            .group(group)
+            .joinedAt(Instant.now())
+            .build());
 
     var curriculum =
         curriculumRepository.save(
@@ -136,9 +143,14 @@ class SchemaWiringIT extends FacadeIT {
 
     var offering =
         courseOfferingRepository.save(
-            CourseOffering.builder().curriculum(curriculum).group(group).academicYear(academicYear).build());
+            CourseOffering.builder()
+                .curriculum(curriculum)
+                .group(group)
+                .academicYear(academicYear)
+                .build());
 
-    courseTeacherRepository.save(CourseTeacher.builder().courseOffering(offering).teacher(teacher).build());
+    courseTeacherRepository.save(
+        CourseTeacher.builder().courseOffering(offering).teacher(teacher).build());
 
     var enrollment =
         courseEnrollmentRepository.save(
@@ -159,7 +171,12 @@ class SchemaWiringIT extends FacadeIT {
                 .build());
 
     examGradeRepository.save(
-        ExamGrade.builder().exam(exam).student(student).score(new BigDecimal("14.50")).enteredBy(teacher).build());
+        ExamGrade.builder()
+            .exam(exam)
+            .student(student)
+            .score(new BigDecimal("14.50"))
+            .enteredBy(teacher)
+            .build());
 
     var result =
         courseResultRepository.save(

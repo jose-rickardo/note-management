@@ -31,13 +31,19 @@ public class CurriculumController {
   @ResponseStatus(HttpStatus.CREATED)
   public Curriculum create(@Valid @RequestBody CreateCurriculumEntryRequest request) {
     Promotion promotion =
-        promotionRepository.findById(request.promotionId()).orElseThrow(() -> new NotFoundException("Promotion not found"));
+        promotionRepository
+            .findById(request.promotionId())
+            .orElseThrow(() -> new NotFoundException("Promotion not found"));
     Course course =
-        courseRepository.findById(request.courseId()).orElseThrow(() -> new NotFoundException("Course not found"));
+        courseRepository
+            .findById(request.courseId())
+            .orElseThrow(() -> new NotFoundException("Course not found"));
     Program program =
         request.programId() == null
             ? null
-            : programRepository.findById(request.programId()).orElseThrow(() -> new NotFoundException("Program not found"));
+            : programRepository
+                .findById(request.programId())
+                .orElseThrow(() -> new NotFoundException("Program not found"));
 
     return curriculumRepository.save(
         Curriculum.builder()

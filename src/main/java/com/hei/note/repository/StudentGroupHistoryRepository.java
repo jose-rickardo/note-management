@@ -6,8 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface StudentGroupHistoryRepository
-    extends JpaRepository<StudentGroupHistory, UUID> {
+public interface StudentGroupHistoryRepository extends JpaRepository<StudentGroupHistory, UUID> {
 
   Optional<StudentGroupHistory> findByStudentIdAndLeftAtIsNull(UUID studentId);
 
