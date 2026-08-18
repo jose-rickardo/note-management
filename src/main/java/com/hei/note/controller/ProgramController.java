@@ -19,8 +19,7 @@ public class ProgramController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public Program create(@Valid @RequestBody CreateProgramRequest request) {
-    return programRepository.save(
-        Program.builder().code(request.code()).name(request.name()).build());
+    return programRepository.save(Program.builder().code(request.code()).name(request.name()).build());
   }
 
   @GetMapping

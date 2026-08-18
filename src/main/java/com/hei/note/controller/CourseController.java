@@ -20,11 +20,7 @@ public class CourseController {
   @ResponseStatus(HttpStatus.CREATED)
   public Course create(@Valid @RequestBody CreateCourseRequest request) {
     return courseRepository.save(
-        Course.builder()
-            .ref(request.ref())
-            .title(request.title())
-            .credits(request.credits())
-            .build());
+        Course.builder().ref(request.ref()).title(request.title()).credits(request.credits()).build());
   }
 
   @GetMapping

@@ -31,9 +31,6 @@ public class PromotionController {
 
   @GetMapping("/{id}")
   public Promotion get(@PathVariable UUID id) {
-    return promotionRepository
-        .findById(id)
-        .orElseThrow(
-            () -> new com.hei.note.exception.NotFoundException("Promotion not found: " + id));
+    return promotionRepository.findById(id).orElseThrow(() -> new com.hei.note.exception.NotFoundException("Promotion not found: " + id));
   }
 }

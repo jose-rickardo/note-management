@@ -1,17 +1,18 @@
 package com.hei.note.service;
 
+import com.hei.note.repository.CourseTeacherRepository;
+import com.hei.note.model.Exam;
+import com.hei.note.repository.ExamRepository;
+import com.hei.note.model.ExamGrade;
+import com.hei.note.repository.ExamGradeRepository;
+import com.hei.note.model.ExamGradeHistory;
+import com.hei.note.repository.ExamGradeHistoryRepository;
+import com.hei.note.repository.StudentRepository;
+import com.hei.note.model.Teacher;
+import com.hei.note.repository.TeacherRepository;
+import com.hei.note.model.User;
 import com.hei.note.exception.ForbiddenOperationException;
 import com.hei.note.exception.NotFoundException;
-import com.hei.note.model.ExamGrade;
-import com.hei.note.model.ExamGradeHistory;
-import com.hei.note.model.Teacher;
-import com.hei.note.model.User;
-import com.hei.note.repository.CourseTeacherRepository;
-import com.hei.note.repository.ExamGradeHistoryRepository;
-import com.hei.note.repository.ExamGradeRepository;
-import com.hei.note.repository.ExamRepository;
-import com.hei.note.repository.StudentRepository;
-import com.hei.note.repository.TeacherRepository;
 import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -39,9 +40,7 @@ public class GradeService {
       UUID onBehalfOfTeacherId,
       String reason) {
     var exam =
-        examRepository
-            .findById(examId)
-            .orElseThrow(() -> new NotFoundException("Exam not found: " + examId));
+        examRepository.findById(examId).orElseThrow(() -> new NotFoundException("Exam not found: " + examId));
     var student =
         studentRepository
             .findById(studentId)
@@ -81,8 +80,7 @@ public class GradeService {
         teacherRepository
             .findByUserId(teacherUserId)
             .orElseThrow(() -> new NotFoundException("No teacher profile for this user"));
-    if (!courseTeacherRepository.existsByCourseOfferingIdAndTeacherId(
-        courseOfferingId, teacher.getId())) {
+    if (!courseTeacherRepository.existsByCourseOfferingIdAndTeacherId(courseOfferingId, teacher.getId())) {
       throw new ForbiddenOperationException("This teacher is not assigned to this course offering");
     }
     return teacher;
@@ -97,8 +95,7 @@ public class GradeService {
         teacherRepository
             .findById(onBehalfOfTeacherId)
             .orElseThrow(() -> new NotFoundException("Teacher not found: " + onBehalfOfTeacherId));
-    if (!courseTeacherRepository.existsByCourseOfferingIdAndTeacherId(
-        courseOfferingId, teacher.getId())) {
+    if (!courseTeacherRepository.existsByCourseOfferingIdAndTeacherId(courseOfferingId, teacher.getId())) {
       throw new ForbiddenOperationException("This teacher is not assigned to this course offering");
     }
     return teacher;

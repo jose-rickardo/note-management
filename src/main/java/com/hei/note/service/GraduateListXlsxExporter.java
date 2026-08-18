@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
@@ -13,9 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class GraduateListXlsxExporter {
 
-  private static final String[] HEADERS = {
-    "Rang", "Matricule", "Nom", "Prenom", "Moyenne generale"
-  };
+  private static final String[] HEADERS = {"Rang", "Matricule", "Nom", "Prenom", "Moyenne generale"};
 
   public byte[] export(String sheetTitle, List<Graduation> graduates) {
     try (XSSFWorkbook workbook = new XSSFWorkbook()) {
@@ -33,8 +32,7 @@ public class GraduateListXlsxExporter {
         cell.setCellStyle(headerStyle);
       }
 
-      var sorted =
-          graduates.stream().sorted((a, b) -> Integer.compare(rankOf(a), rankOf(b))).toList();
+      var sorted = graduates.stream().sorted((a, b) -> Integer.compare(rankOf(a), rankOf(b))).toList();
 
       int rowIndex = 1;
       for (Graduation graduation : sorted) {

@@ -26,9 +26,7 @@ public class PdfTranscriptGenerator {
       float y = page.getMediaBox().getHeight() - MARGIN;
 
       try (PDPageContentStream stream = new PDPageContentStream(document, page)) {
-        y =
-            writeLine(
-                stream, titleFont, 16, MARGIN, y, "Releve de notes - " + data.academicYearLabel());
+        y = writeLine(stream, titleFont, 16, MARGIN, y, "Releve de notes - " + data.academicYearLabel());
         y -= LINE_HEIGHT / 2;
         y =
             writeLine(
@@ -37,30 +35,16 @@ public class PdfTranscriptGenerator {
                 11,
                 MARGIN,
                 y,
-                data.studentFirstName()
-                    + " "
-                    + data.studentLastName()
-                    + " ("
-                    + data.studentNumber()
-                    + ")");
+                data.studentFirstName() + " " + data.studentLastName() + " (" + data.studentNumber() + ")");
         y = writeLine(stream, bodyFont, 11, MARGIN, y, "Type: " + data.transcriptType());
         y -= LINE_HEIGHT;
 
-        y =
-            writeLine(
-                stream,
-                titleFont,
-                11,
-                MARGIN,
-                y,
-                String.format(
-                    "%-10s %-30s %6s %8s %10s", "Ref", "Matiere", "Crd", "Note", "Statut"));
+        y = writeLine(stream, titleFont, 11, MARGIN, y, String.format("%-10s %-30s %6s %8s %10s", "Ref", "Matiere", "Crd", "Note", "Statut"));
         y -= 4;
 
         for (TranscriptLine line : data.lines()) {
           var noteText = line.resultAvailable() ? line.score().toPlainString() : "-";
-          var statusText =
-              !line.resultAvailable() ? "En attente" : (line.validated() ? "Valide" : "Non valide");
+          var statusText = !line.resultAvailable() ? "En attente" : (line.validated() ? "Valide" : "Non valide");
           y =
               writeLine(
                   stream,
@@ -70,11 +54,7 @@ public class PdfTranscriptGenerator {
                   y,
                   String.format(
                       "%-10s %-30s %6d %8s %10s",
-                      line.courseRef(),
-                      truncate(line.courseTitle(), 30),
-                      line.credits(),
-                      noteText,
-                      statusText));
+                      line.courseRef(), truncate(line.courseTitle(), 30), line.credits(), noteText, statusText));
         }
       }
 

@@ -20,9 +20,7 @@ public class GradeController {
 
   @PostMapping
   public ExamGrade enterOrUpdate(
-      @PathVariable UUID examId,
-      @Valid @RequestBody EnterGradeRequest request,
-      Authentication authentication) {
+      @PathVariable UUID examId, @Valid @RequestBody EnterGradeRequest request, Authentication authentication) {
     var actingUser = currentUserResolver.resolve(authentication);
     return gradeService.enterOrUpdateGrade(
         examId,

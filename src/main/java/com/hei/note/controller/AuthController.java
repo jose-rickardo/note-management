@@ -1,8 +1,8 @@
 package com.hei.note.controller;
 
+import com.hei.note.repository.UserRepository;
 import com.hei.note.dto.LoginRequest;
 import com.hei.note.dto.LoginResponse;
-import com.hei.note.repository.UserRepository;
 import com.hei.note.security.JwtService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,15 +1,15 @@
 package com.hei.note.service;
 
+import com.hei.note.repository.PromotionRepository;
+import com.hei.note.model.Student;
+import com.hei.note.repository.StudentRepository;
+import com.hei.note.model.Teacher;
+import com.hei.note.repository.TeacherRepository;
+import com.hei.note.model.Role;
+import com.hei.note.model.User;
+import com.hei.note.repository.UserRepository;
 import com.hei.note.exception.BusinessRuleException;
 import com.hei.note.exception.NotFoundException;
-import com.hei.note.model.Role;
-import com.hei.note.model.Student;
-import com.hei.note.model.Teacher;
-import com.hei.note.model.User;
-import com.hei.note.repository.PromotionRepository;
-import com.hei.note.repository.StudentRepository;
-import com.hei.note.repository.TeacherRepository;
-import com.hei.note.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,11 +27,7 @@ public class UserAccountService {
 
   @Transactional
   public Student createStudent(
-      String email,
-      String rawPassword,
-      String firstName,
-      String lastName,
-      java.util.UUID promotionId) {
+      String email, String rawPassword, String firstName, String lastName, java.util.UUID promotionId) {
     if (userRepository.existsByEmail(email)) {
       throw new BusinessRuleException("A user with email " + email + " already exists");
     }

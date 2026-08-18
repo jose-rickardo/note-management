@@ -20,19 +20,13 @@ public class CourseResultController {
 
   @PostMapping("/recompute")
   public CourseResult recompute(@PathVariable UUID enrollmentId, Authentication authentication) {
-    return courseResultService.recomputeFromExamGrades(
-        enrollmentId, currentUserResolver.resolve(authentication));
+    return courseResultService.recomputeFromExamGrades(enrollmentId, currentUserResolver.resolve(authentication));
   }
 
   @PostMapping("/rattrapage")
   public CourseResult rattrapage(
-      @PathVariable UUID enrollmentId,
-      @Valid @RequestBody RattrapageRequest request,
-      Authentication authentication) {
+      @PathVariable UUID enrollmentId, @Valid @RequestBody RattrapageRequest request, Authentication authentication) {
     return courseResultService.recordRattrapage(
-        enrollmentId,
-        request.newScore(),
-        currentUserResolver.resolve(authentication),
-        request.reason());
+        enrollmentId, request.newScore(), currentUserResolver.resolve(authentication), request.reason());
   }
 }

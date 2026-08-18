@@ -34,19 +34,13 @@ public class GroupController {
   @ResponseStatus(HttpStatus.CREATED)
   public Group create(@Valid @RequestBody CreateGroupRequest request) {
     Promotion promotion =
-        promotionRepository
-            .findById(request.promotionId())
-            .orElseThrow(() -> new NotFoundException("Promotion not found"));
+        promotionRepository.findById(request.promotionId()).orElseThrow(() -> new NotFoundException("Promotion not found"));
     AcademicYear academicYear =
-        academicYearRepository
-            .findById(request.academicYearId())
-            .orElseThrow(() -> new NotFoundException("Academic year not found"));
+        academicYearRepository.findById(request.academicYearId()).orElseThrow(() -> new NotFoundException("Academic year not found"));
     Program program =
         request.programId() == null
             ? null
-            : programRepository
-                .findById(request.programId())
-                .orElseThrow(() -> new NotFoundException("Program not found"));
+            : programRepository.findById(request.programId()).orElseThrow(() -> new NotFoundException("Program not found"));
 
     return groupRepository.save(
         Group.builder()
@@ -60,21 +54,16 @@ public class GroupController {
 
   @GetMapping
   public List<Group> list(
-      @RequestParam(required = false) UUID promotionId,
-      @RequestParam(required = false) UUID academicYearId) {
+      @RequestParam(required = false) UUID promotionId, @RequestParam(required = false) UUID academicYearId) {
     if (promotionId != null && academicYearId != null) {
       return groupRepository.findByPromotionIdAndAcademicYearId(promotionId, academicYearId);
     }
     return groupRepository.findAll();
   }
 
-  /**
-   * Moves a student into this group for the current academic year, closing their previous
-   * membership.
-   */
+  /** Moves a student into this group for the current academic year, closing their previous membership. */
   @PostMapping("/assign-student")
-  public com.hei.note.model.StudentGroupHistory assignStudent(
-      @Valid @RequestBody AssignStudentToGroupRequest request) {
+  public com.hei.note.model.StudentGroupHistory assignStudent(@Valid @RequestBody AssignStudentToGroupRequest request) {
     return groupAssignmentService.assignStudentToGroup(request.studentId(), request.groupId());
   }
 }

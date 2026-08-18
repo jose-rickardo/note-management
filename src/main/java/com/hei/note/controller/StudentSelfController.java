@@ -32,36 +32,23 @@ public class StudentSelfController {
   }
 
   @GetMapping("/transcript")
-  public TranscriptResponse myTranscript(
-      @RequestParam UUID academicYearId, Authentication authentication) {
+  public TranscriptResponse myTranscript(@RequestParam UUID academicYearId, Authentication authentication) {
     var data = transcriptService.buildData(myStudentId(authentication), academicYearId);
     var lines =
         data.lines().stream()
             .map(
                 l ->
                     new TranscriptLineResponse(
-                        l.courseRef(),
-                        l.courseTitle(),
-                        l.credits(),
-                        l.score(),
-                        l.validated(),
-                        l.resultAvailable()))
+                        l.courseRef(), l.courseTitle(), l.credits(), l.score(), l.validated(), l.resultAvailable()))
             .toList();
-    return new TranscriptResponse(
-        null,
-        data.studentNumber(),
-        data.academicYearLabel(),
-        data.transcriptType().name(),
-        "LIVE",
-        lines);
+    return new TranscriptResponse(null, data.studentNumber(), data.academicYearLabel(), data.transcriptType().name(), "LIVE", lines);
   }
 
   @PostMapping("/transcript/send")
   public void emailMyTranscript(@RequestParam UUID academicYearId, Authentication authentication) {
     var studentId = myStudentId(authentication);
     var data = transcriptService.buildData(studentId, academicYearId);
-    var transcript =
-        transcriptService.createPendingTranscript(studentId, academicYearId, data.transcriptType());
+    var transcript = transcriptService.createPendingTranscript(studentId, academicYearId, data.transcriptType());
     var currentUser = currentUserResolver.resolve(authentication);
     transcriptEmailEventProducer.accept(
         List.of(

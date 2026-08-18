@@ -1,20 +1,20 @@
 package com.hei.note.service;
 
-import com.hei.note.exception.NotFoundException;
 import com.hei.note.model.Course;
 import com.hei.note.model.CourseEnrollment;
+import com.hei.note.repository.CourseEnrollmentRepository;
 import com.hei.note.model.CourseResult;
+import com.hei.note.repository.CourseResultRepository;
 import com.hei.note.model.Graduation;
+import com.hei.note.repository.GraduationRepository;
 import com.hei.note.model.GraduationStatus;
 import com.hei.note.model.Program;
 import com.hei.note.model.Promotion;
-import com.hei.note.model.Student;
-import com.hei.note.repository.CourseEnrollmentRepository;
-import com.hei.note.repository.CourseResultRepository;
-import com.hei.note.repository.GraduationRepository;
 import com.hei.note.repository.PromotionRepository;
-import com.hei.note.repository.StudentGroupHistoryRepository;
+import com.hei.note.model.Student;
 import com.hei.note.repository.StudentRepository;
+import com.hei.note.repository.StudentGroupHistoryRepository;
+import com.hei.note.exception.NotFoundException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -59,10 +59,8 @@ public class GraduationService {
     return newlyPersisted;
   }
 
-  private Optional<Graduation> evaluate(
-      Student student, Promotion promotion, LocalDate graduationDate) {
-    List<CourseEnrollment> enrollments =
-        courseEnrollmentRepository.findByStudentId(student.getId());
+  private Optional<Graduation> evaluate(Student student, Promotion promotion, LocalDate graduationDate) {
+    List<CourseEnrollment> enrollments = courseEnrollmentRepository.findByStudentId(student.getId());
     if (enrollments.isEmpty()) {
       return Optional.empty();
     }
@@ -110,12 +108,7 @@ public class GraduationService {
     graduation.setStatus(GraduationStatus.GRADUATED);
     if (graduation.getDiplomaNumber() == null) {
       graduation.setDiplomaNumber(
-          "DIP-"
-              + promotion.getEntryYear()
-              + "-"
-              + program.getCode()
-              + "-"
-              + student.getStudentNumber());
+          "DIP-" + promotion.getEntryYear() + "-" + program.getCode() + "-" + student.getStudentNumber());
     }
 
     return Optional.of(graduationRepository.save(graduation));

@@ -21,14 +21,12 @@ public class CourseOfferingController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public CourseOffering create(@Valid @RequestBody CreateCourseOfferingRequest request) {
-    return courseAssignmentService.createOffering(
-        request.curriculumId(), request.groupId(), request.academicYearId());
+    return courseAssignmentService.createOffering(request.curriculumId(), request.groupId(), request.academicYearId());
   }
 
   @PostMapping("/{offeringId}/teachers")
   @ResponseStatus(HttpStatus.CREATED)
-  public CourseTeacher assignTeacher(
-      @PathVariable UUID offeringId, @Valid @RequestBody AssignTeacherRequest request) {
+  public CourseTeacher assignTeacher(@PathVariable UUID offeringId, @Valid @RequestBody AssignTeacherRequest request) {
     return courseAssignmentService.assignTeacher(offeringId, request.teacherId());
   }
 }

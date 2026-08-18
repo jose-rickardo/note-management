@@ -14,7 +14,6 @@ public class TranscriptEmailRequestedService implements Consumer<TranscriptEmail
 
   @Override
   public void accept(TranscriptEmailRequested event) {
-    transcriptDeliveryService.processTranscriptEmail(
-        event.getTranscriptId(), event.getRecipientEmail());
+    transcriptDeliveryService.processTranscriptEmail(event.getTranscriptId(), event.getRecipientEmail());
   }
 }

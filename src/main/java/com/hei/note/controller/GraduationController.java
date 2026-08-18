@@ -26,8 +26,7 @@ public class GraduationController {
 
   @PostMapping("/compute")
   public List<GraduationResponse> compute(
-      @PathVariable UUID promotionId,
-      @RequestBody(required = false) ComputeGraduationRequest request) {
+      @PathVariable UUID promotionId, @RequestBody(required = false) ComputeGraduationRequest request) {
     var graduationDate = request == null ? null : request.graduationDate();
     return graduationService.computeForPromotion(promotionId, graduationDate).stream()
         .map(this::toResponse)
@@ -35,8 +34,7 @@ public class GraduationController {
   }
 
   @GetMapping
-  public List<GraduationResponse> list(
-      @PathVariable UUID promotionId, @RequestParam(required = false) UUID programId) {
+  public List<GraduationResponse> list(@PathVariable UUID promotionId, @RequestParam(required = false) UUID programId) {
     var all = graduationRepository.findByPromotionId(promotionId);
     return all.stream()
         .filter(g -> programId == null || g.getProgram().getId().equals(programId))
@@ -46,8 +44,7 @@ public class GraduationController {
   }
 
   @GetMapping("/export")
-  public ResponseEntity<byte[]> export(
-      @PathVariable UUID promotionId, @RequestParam UUID programId) {
+  public ResponseEntity<byte[]> export(@PathVariable UUID promotionId, @RequestParam UUID programId) {
     var graduates =
         graduationRepository.findByPromotionId(promotionId).stream()
             .filter(g -> g.getProgram().getId().equals(programId))
@@ -60,9 +57,7 @@ public class GraduationController {
         ContentDisposition.attachment().filename("diplomes-" + program + ".xlsx").build());
     return ResponseEntity.ok()
         .headers(headers)
-        .contentType(
-            MediaType.parseMediaType(
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+        .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
         .body(xlsx);
   }
 

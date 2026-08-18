@@ -4,19 +4,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.hei.note.conf.FacadeIT;
 import com.hei.note.model.AcademicYear;
-import com.hei.note.model.Group;
-import com.hei.note.model.Promotion;
-import com.hei.note.model.Student;
-import com.hei.note.model.StudentGroupHistory;
 import com.hei.note.repository.AcademicYearRepository;
+import com.hei.note.model.Group;
 import com.hei.note.repository.GroupRepository;
+import com.hei.note.model.Promotion;
 import com.hei.note.repository.PromotionRepository;
-import com.hei.note.repository.StudentGroupHistoryRepository;
+import com.hei.note.model.Student;
 import com.hei.note.repository.StudentRepository;
+import com.hei.note.model.StudentGroupHistory;
+import com.hei.note.repository.StudentGroupHistoryRepository;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -52,20 +53,10 @@ class StudentGroupHistoryConstraintIT extends FacadeIT {
 
     var groupYear1 =
         groupRepository.save(
-            Group.builder()
-                .code("TC1-A")
-                .promotion(promotion)
-                .academicYear(year1)
-                .yearLevel(1)
-                .build());
+            Group.builder().code("TC1-A").promotion(promotion).academicYear(year1).yearLevel(1).build());
     var groupYear2 =
         groupRepository.save(
-            Group.builder()
-                .code("TN2-A")
-                .promotion(promotion)
-                .academicYear(year2)
-                .yearLevel(2)
-                .build());
+            Group.builder().code("TN2-A").promotion(promotion).academicYear(year2).yearLevel(2).build());
 
     studentGroupHistoryRepository.save(
         StudentGroupHistory.builder()
