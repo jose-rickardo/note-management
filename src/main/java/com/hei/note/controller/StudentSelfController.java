@@ -46,7 +46,12 @@ public class StudentSelfController {
     var studentId = myStudentId(authentication);
     return courseEnrollmentRepository.findByStudentId(studentId).stream()
         .map(e -> e.getCourseOffering().getAcademicYear())
-        .collect(Collectors.toMap(AcademicYear::getId, ay -> ay, (a, b) -> a, LinkedHashMap::new))
+        .collect(
+            Collectors.toMap(
+                AcademicYear::getId,
+                ay -> ay,
+                (a, b) -> a,
+                LinkedHashMap::new))
         .values()
         .stream()
         .sorted(Comparator.comparing(AcademicYear::getStartYear).reversed())
