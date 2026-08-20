@@ -45,10 +45,17 @@ public class SecurityConfig {
   @Bean
   @Order(1)
   public SecurityFilterChain uiFilterChain(HttpSecurity http) throws Exception {
-    http.securityMatcher("/ui/**", "/admin/promotions/*/graduations/export")
+    http.securityMatcher(
+            "/ui/**",
+            "/admin/promotions/*/graduations/export",
+            "/admin/promotions/*/students/export")
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(
-            auth -> auth.requestMatchers("/ui/login").permitAll().anyRequest().hasRole("ADMIN"))
+            auth ->
+                auth.requestMatchers("/ui/login", "/ui/student/**")
+                    .permitAll()
+                    .anyRequest()
+                    .hasRole("ADMIN"))
         .formLogin(
             form ->
                 form.loginPage("/ui/login")
