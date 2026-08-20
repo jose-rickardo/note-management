@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="'Etudiants - ' + ${promotion.code}">Etudiants</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; color: #1f2933; }
+    h1 { margin-bottom: 0.25rem; }
+    .subtitle { color: #52606d; margin-bottom: 1.5rem; }
+    table { border-collapse: collapse; width: 100%; max-width: 760px; }
+    th, td { border: 1px solid #d7dbe0; padding: 0.6rem 0.9rem; text-align: left; }
+    th { background: #f4f6f8; }
+    .toolbar { margin-bottom: 1.25rem; display: flex; gap: 0.75rem; align-items: center; }
+    a.btn { display: inline-block; padding: 0.35rem 0.8rem; background: #2563eb; color: white;
+            text-decoration: none; border-radius: 4px; font-size: 0.9rem; }
+    a.btn.secondary { background: #6b7280; }
+    .empty { color: #52606d; font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1 th:text="'Promotion ' + ${promotion.code}">Promotion 2026</h1>
+  <p class="subtitle" th:text="'Annee d''entree : ' + ${promotion.entryYear}">Annee d'entree : 2026</p>
+
+  <div class="toolbar">
+    <a class="btn" th:href="@{'/admin/promotions/' + ${promotion.id} + '/students/export'}">
+      Telecharger la liste (XLSX)
+    </a>
+    <a class="btn secondary" th:href="@{/ui/promotions}">Retour aux promotions</a>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Matricule</th>
+        <th>Nom</th>
+        <th>Prenom</th>
+        <th>Annee d'entree</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="student : ${students}">
+        <td th:text="${student.studentNumber}">M-0001</td>
+        <td th:text="${student.lastName}">Nom</td>
+        <td th:text="${student.firstName}">Prenom</td>
+        <td th:text="${student.entryYear}">2026</td>
+      </tr>
+      <tr th:if="${students.isEmpty()}">
+        <td colspan="4" class="empty">Aucun etudiant dans cette promotion pour le moment.</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>

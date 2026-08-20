@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mes notes - Etudiant</title>
+  <style>
+    :root {
+      --bg: #f4f6f8; --card: #ffffff; --text: #1f2933; --muted: #52606d;
+      --border: #d7dbe0; --primary: #2563eb; --primary-hover: #1d4ed8;
+      --success: #059669; --danger: #b91c1c; --warn: #d97706;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+      margin: 0; background: var(--bg); color: var(--text); min-height: 100vh;
+    }
+    .container { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+    h1 { margin: 0 0 0.25rem; font-size: 1.5rem; }
+    .subtitle { color: var(--muted); margin-bottom: 1.25rem; }
+    .card {
+      background: var(--card); border-radius: 10px; padding: 1.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 1.25rem;
+    }
+    label { display: block; font-size: 0.85rem; margin-bottom: 0.3rem; color: var(--muted); }
+    input, select {
+      width: 100%; padding: 0.55rem 0.7rem; margin-bottom: 1rem;
+      border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem;
+    }
+    button, .btn {
+      display: inline-block; padding: 0.55rem 1rem; background: var(--primary);
+      color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.95rem;
+    }
+    button:hover { background: var(--primary-hover); }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+    button.secondary { background: #6b7280; }
+    button.secondary:hover { background: #4b5563; }
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;
+      justify-content: space-between; margin-bottom: 1rem;
+    }
+    .toolbar-left, .toolbar-right { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid var(--border); padding: 0.55rem 0.75rem; text-align: left; }
+    th { background: #f4f6f8; font-size: 0.85rem; }
+    .badge {
+      display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 600;
+    }
+    .badge.ok { background: #d1fae5; color: var(--success); }
+    .badge.no { background: #fee2e2; color: var(--danger); }
+    .badge.pending { background: #fef3c7; color: var(--warn); }
+    .msg { padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem; }
+    .msg.error { background: #fee2e2; color: var(--danger); }
+    .msg.ok { background: #d1fae5; color: var(--success); }
+    .msg.info { background: #dbeafe; color: #1e40af; }
+    .hidden { display: none !important; }
+    .user-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .user-bar span { color: var(--muted); font-size: 0.9rem; }
+    .empty { color: var(--muted); font-style: italic; text-align: center; padding: 1.5rem; }
+    .meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.75rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="login-section" class="card" style="max-width: 400px; margin: 4rem auto;">
+      <h1>Espace etudiant</h1>
+      <p class="subtitle">Connectez-vous pour consulter vos notes</p>
+      <div id="login-error" class="msg error hidden"></div>
+      <form id="login-form">
+        <label for="email">Email</label>
+        <input type="email" id="email" required autofocus />
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" required />
+        <button type="submit" style="width:100%">Se connecter</button>
+      </form>
+    </div>
+
+    <div id="notes-section" class="hidden">
+      <div class="user-bar">
+        <div>
+          <h1>Mes notes par matiere</h1>
+          <p class="subtitle" id="user-email"></p>
+        </div>
+        <button type="button" class="secondary" id="logout-btn">Deconnexion</button>
+      </div>
+
+      <div id="global-msg" class="msg hidden"></div>
+
+      <div class="card">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <label for="year-select" style="margin:0">Annee academique</label>
+            <select id="year-select" style="width:auto; min-width:180px; margin:0"></select>
+            <button type="button" id="refresh-btn" class="secondary">Actualiser</button>
+          </div>
+          <div class="toolbar-right">
+            <button type="button" id="send-pdf-btn">Envoyer le releve de notes (PDF) par email</button>
+          </div>
+        </div>
+
+        <div class="meta" id="transcript-meta"></div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Ref</th>
+              <th>Matiere</th>
+              <th>Credits</th>
+              <th>Note</th>
+              <th>Validee</th>
+              <th>Disponible</th>
+            </tr>
+          </thead>
+          <tbody id="notes-body">
+            <tr><td colspan="6" class="empty">Selectionnez une annee academique</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = window.location.origin;
+    const TOKEN_KEY = 'student_jwt';
+    const EMAIL_KEY = 'student_email';
+
+    const loginSection = document.getElementById('login-section');
+    const notesSection = document.getElementById('notes-section');
+    const loginForm = document.getElementById('login-form');
+    const loginError = document.getElementById('login-error');
+    const yearSelect = document.getElementById('year-select');
+    const notesBody = document.getElementById('notes-body');
+    const transcriptMeta = document.getElementById('transcript-meta');
+    const globalMsg = document.getElementById('global-msg');
+    const sendPdfBtn = document.getElementById('send-pdf-btn');
+    const refreshBtn = document.getElementById('refresh-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const userEmailEl = document.getElementById('user-email');
+
+    function token() { return localStorage.getItem(TOKEN_KEY); }
+    function setSession(t, email) {
+      localStorage.setItem(TOKEN_KEY, t);
+      localStorage.setItem(EMAIL_KEY, email || '');
+    }
+    function clearSession() {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(EMAIL_KEY);
+    }
+
+    function showMsg(text, type) {
+      globalMsg.textContent = text;
+      globalMsg.className = 'msg ' + (type || 'info');
+      globalMsg.classList.remove('hidden');
+      setTimeout(() => globalMsg.classList.add('hidden'), 6000);
+    }
+
+    async function api(path, options = {}) {
+      const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+      if (token()) headers['Authorization'] = 'Bearer ' + token();
+      const res = await fetch(API + path, Object.assign({}, options, { headers }));
+      if (res.status === 401) {
+        clearSession();
+        showLogin();
+        throw new Error('Session expiree, reconnectez-vous');
+      }
+      if (!res.ok) {
+        let detail = res.statusText;
+        try {
+          const body = await res.json();
+          detail = body.message || body.error || JSON.stringify(body);
+        } catch (_) {}
+        throw new Error(detail || ('Erreur ' + res.status));
+      }
+      if (res.status === 204) return null;
+      const ct = res.headers.get('content-type') || '';
+      if (ct.includes('application/json')) return res.json();
+      return res.text();
+    }
+
+    function showLogin() {
+      loginSection.classList.remove('hidden');
+      notesSection.classList.add('hidden');
+    }
+
+    function showNotes() {
+      loginSection.classList.add('hidden');
+      notesSection.classList.remove('hidden');
+      userEmailEl.textContent = localStorage.getItem(EMAIL_KEY) || '';
+    }
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginError.classList.add('hidden');
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      try {
+        const data = await api('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password })
+        });
+        if (data.role && data.role !== 'STUDENT' && data.role !== 'ADMIN') {
+          throw new Error('Compte non autorise pour l\'espace etudiant');
+        }
+        setSession(data.token, data.email || email);
+        showNotes();
+        await loadYears();
+      } catch (err) {
+        loginError.textContent = err.message || 'Connexion impossible';
+        loginError.classList.remove('hidden');
+      }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      clearSession();
+      showLogin();
+    });
+
+    async function loadYears() {
+      yearSelect.innerHTML = '<option value="">Chargement...</option>';
+      try {
+        const years = await api('/students/me/academic-years');
+        if (!years || years.length === 0) {
+          yearSelect.innerHTML = '<option value="">Aucune annee disponible</option>';
+          notesBody.innerHTML = '<tr><td colspan="6" class="empty">Aucune inscription trouvee</td></tr>';
+          transcriptMeta.textContent = '';
+          return;
+        }
+        yearSelect.innerHTML = years.map(y =>
+          '<option value="' + y.id + '">' + y.label + ' (' + y.startYear + '-' + y.endYear + ')</option>'
+        ).join('');
+        await loadTranscript();
+      } catch (err) {
+        yearSelect.innerHTML = '<option value="">Erreur</option>';
+        showMsg(err.message, 'error');
+      }
+    }
+
+    async function loadTranscript() {
+      const yearId = yearSelect.value;
+      if (!yearId) return;
+      notesBody.innerHTML = '<tr><td colspan="6" class="empty">Chargement...</td></tr>';
+      try {
+        const data = await api('/students/me/transcript?academicYearId=' + encodeURIComponent(yearId));
+        transcriptMeta.textContent =
+          'Matricule : ' + (data.studentNumber || '—') +
+          ' · Annee : ' + (data.academicYearLabel || '—') +
+          ' · Type : ' + (data.transcriptType || '—') +
+          ' · Statut : ' + (data.status || '—');
+        const lines = data.lines || [];
+        if (lines.length === 0) {
+          notesBody.innerHTML = '<tr><td colspan="6" class="empty">Aucune matiere pour cette annee</td></tr>';
+          return;
+        }
+        notesBody.innerHTML = lines.map(l => {
+          const score = l.score != null ? Number(l.score).toFixed(2) : '—';
+          const validated = l.validated
+            ? '<span class="badge ok">Oui</span>'
+            : '<span class="badge no">Non</span>';
+          const available = l.resultAvailable
+            ? '<span class="badge ok">Oui</span>'
+            : '<span class="badge pending">En attente</span>';
+          return '<tr>' +
+            '<td>' + escapeHtml(l.courseRef || '') + '</td>' +
+            '<td>' + escapeHtml(l.courseTitle || '') + '</td>' +
+            '<td>' + (l.credits != null ? l.credits : '—') + '</td>' +
+            '<td>' + score + '</td>' +
+            '<td>' + validated + '</td>' +
+            '<td>' + available + '</td>' +
+            '</tr>';
+        }).join('');
+      } catch (err) {
+        notesBody.innerHTML = '<tr><td colspan="6" class="empty">' + escapeHtml(err.message) + '</td></tr>';
+        showMsg(err.message, 'error');
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    yearSelect.addEventListener('change', loadTranscript);
+    refreshBtn.addEventListener('click', loadTranscript);
+
+    sendPdfBtn.addEventListener('click', async () => {
+      const yearId = yearSelect.value;
+      if (!yearId) {
+        showMsg('Selectionnez une annee academique', 'error');
+        return;
+      }
+      sendPdfBtn.disabled = true;
+      try {
+        const res = await api('/students/me/transcript/send?academicYearId=' + encodeURIComponent(yearId), {
+          method: 'POST'
+        });
+        showMsg((res && res.message) || 'Releve de notes envoye par email', 'ok');
+      } catch (err) {
+        showMsg(err.message, 'error');
+      } finally {
+        sendPdfBtn.disabled = false;
+      }
+    });
+
+    if (token()) {
+      showNotes();
+      loadYears();
+    } else {
+      showLogin();
+    }
+  </script>
+</body>
+</html>
