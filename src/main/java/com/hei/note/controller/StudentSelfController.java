@@ -5,14 +5,22 @@ import com.hei.note.dto.TranscriptResponse;
 import com.hei.note.endpoint.event.EventProducer;
 import com.hei.note.endpoint.event.model.TranscriptEmailRequested;
 import com.hei.note.exception.NotFoundException;
+import com.hei.note.model.AcademicYear;
+import com.hei.note.model.CourseResult;
+import com.hei.note.repository.CourseEnrollmentRepository;
 import com.hei.note.repository.CourseResultRepository;
 import com.hei.note.repository.StudentRepository;
 import com.hei.note.security.CurrentUserResolver;
 import com.hei.note.service.TranscriptService;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,13 +30,36 @@ public class StudentSelfController {
 
   private final StudentRepository studentRepository;
   private final CourseResultRepository courseResultRepository;
+  private final CourseEnrollmentRepository courseEnrollmentRepository;
   private final TranscriptService transcriptService;
   private final EventProducer<TranscriptEmailRequested> transcriptEmailEventProducer;
   private final CurrentUserResolver currentUserResolver;
 
   @GetMapping("/results")
-  public java.util.List<com.hei.note.model.CourseResult> myResults(Authentication authentication) {
+  public List<CourseResult> myResults(Authentication authentication) {
     return courseResultRepository.findByStudentId(myStudentId(authentication));
+  }
+
+  @GetMapping("/academic-years")
+  @Transactional(readOnly = true)
+  public List<Map<String, Object>> myAcademicYears(Authentication authentication) {
+    var studentId = myStudentId(authentication);
+    return courseEnrollmentRepository.findByStudentId(studentId).stream()
+        .map(e -> e.getCourseOffering().getAcademicYear())
+        .collect(Collectors.toMap(AcademicYear::getId, ay -> ay, (a, b) -> a, LinkedHashMap::new))
+        .values()
+        .stream()
+        .sorted(Comparator.comparing(AcademicYear::getStartYear).reversed())
+        .map(
+            ay -> {
+              Map<String, Object> m = new LinkedHashMap<>();
+              m.put("id", ay.getId());
+              m.put("label", ay.getLabel());
+              m.put("startYear", ay.getStartYear());
+              m.put("endYear", ay.getEndYear());
+              return m;
+            })
+        .toList();
   }
 
   @GetMapping("/transcript")
@@ -57,7 +88,8 @@ public class StudentSelfController {
   }
 
   @PostMapping("/transcript/send")
-  public void emailMyTranscript(@RequestParam UUID academicYearId, Authentication authentication) {
+  public Map<String, String> emailMyTranscript(
+      @RequestParam UUID academicYearId, Authentication authentication) {
     var studentId = myStudentId(authentication);
     var data = transcriptService.buildData(studentId, academicYearId);
     var transcript =
@@ -69,6 +101,11 @@ public class StudentSelfController {
                 .transcriptId(transcript.getId())
                 .recipientEmail(currentUser.getEmail())
                 .build()));
+    return Map.of(
+        "message",
+        "Releve de notes en cours d'envoi vers " + currentUser.getEmail(),
+        "transcriptId",
+        transcript.getId().toString());
   }
 
   private UUID myStudentId(Authentication authentication) {
